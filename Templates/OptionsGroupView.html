@@ -1,0 +1,81 @@
+<div class="OptionGroupsHeader optionHeadMargin">
+    <h3>Bundles &amp; Options</h3>
+</div>
+<div class="optionHeadMargin">
+    <span class="optionGroupanchortags">
+        <ul class="list-inline">
+            <li ng-repeat="optiongroup in currentproductoptiongroups">
+                <a ng-click="gotosection(optiongroup.groupName)">{{optiongroup.groupName}}</a>
+            </li>
+        </ul>
+    </span>
+</div><br/>
+
+<accordion close-others="false">
+    <accordion-group ng-repeat="optiongroup in currentproductoptiongroups" is-open="true" class="otpionGroupVie">
+        <accordion-heading>
+            <div class="accodian-heading-cap">
+                <a id="{{optiongroup.groupName}}"></a>{{optiongroup.groupName}}<span ng-show="optiongroup.groupName == 'UNI(s)'"> - {{(currentSelectedLineItemBandle | filter:{optionName:'UNI'}).length}}</span>
+                <div ng-show="optiongroup.isError" class="alert-box error">
+                    <span>error: </span>
+                    {{optiongroup.errorMessage}}
+                </div>
+            </div>
+        </accordion-heading>
+
+        <table  class="options-table" style="width: 100%;">
+            <tr class="row" ng-repeat="pcomponent in optiongroup.optionLines" ng-show="showOptionLine(pcomponent)">
+                <td style="width:30px;" ng-hide="pcomponent.hideLegacyOption">
+                    <div ng-show="optiongroup.ischeckbox" id="opCheckbox">
+                        <!--<input type="checkbox" ng-change="renderoptionproductattributes(pcomponent, $parent.$index)" checklist-model="totalSeatsValidation()" ng-model="pcomponent.isselected" ng-disabled="pcomponent.isDisabled">-->
+                        <input type="checkbox" ng-change="renderAttrNrunExpre(pcomponent, $parent.$index, true, false, optiongroup, true);" ng-model="pcomponent.isselected" ng-disabled="pcomponent.isDisabled || !pcomponent.isAvailableonSLocation || isTwoUNIELINE || isCapReadOnly" /><!-- || !pcomponent.isAvailableonSLocation-->
+                        </input>
+                    </div>
+                    <div ng-show="!optiongroup.ischeckbox" id="opRadio">
+                        <input ng-click="renderAttrNrunExpre(pcomponent, $parent.$index, true, false, optiongroup, false);" type="radio" ng-model="optiongroup.selectedproduct" ng-value="pcomponent.productId" ng-disabled="pcomponent.isDisabled || !pcomponent.isAvailableonSLocation || isCapReadOnly"><!-- || !pcomponent.isAvailableonSLocation-->
+                        </input>
+                    </div>
+                </td>
+                <td ng-hide="pcomponent.hideLegacyOption">
+                    <div>
+                        <!--
+                        <a href="#" title="Configure {{pcomponent.productName}}" ng-click="rendercurrentproductoptiongroups(null, pcomponent, $parent.$index, true)" ng-show="pcomponent.hasOptions">
+                        -->
+                        <a href="#" title="Configure {{pcomponent.productName}}" ng-click="renderGroupsWithExpression(null, pcomponent, $parent.$index, true, true);" ng-show="pcomponent.hasOptions && pcomponent.isAvailableonSLocation" class="confogureSubOption">
+                            <img src="{{imagesbaseURL}}/Apttus_Config2_Configure_bundle.png" alt="Configure"/><!-- && pcomponent.isAvailableonSLocation-->
+                        </a>
+                        <div ng-click="launchHelp(pcomponent)" class="optionComponentName" style="{{pcomponent.className}}"> 
+                            {{pcomponent.productName}} {{getLocationName(pcomponent.lineItem)}}
+                        </div>
+                    </div>
+                </td>
+                <td style="width:100px;text-align: right;" ng-hide="pcomponent.hideLegacyOption">
+                    <div ng-show="pcomponent.componentId != null" style="float:left;display:inline">
+                        <span style="padding-left: 4px; padding-right: 2px;display:inline;">Qty</span>
+                        <input type="number" style="text-align: right; width:3em;" ng-model="pcomponent.quantity" ng-change="renderAttrNrunExpre(pcomponent, $parent.$index, false, true, optiongroup, false);" ng-model-options="{ debounce: 1000 }" ng-disabled="pcomponent.isDisabled || pcomponent.isQuantityReadOnly || isCapReadOnly"/><!-- || !pcomponent.isAvailableonSLocation-->
+                    </div>
+                </td>
+                <td style="width:60px;text-align: left;" ng-hide="pcomponent.hideLegacyOption">
+                    <!--<a ng-show="pcomponent.componentId != null && pcomponent.hasAttributes" href="#" title="Configure Attributes" ng-click="selectProductrenderoptionproductattributes(pcomponent, $parent.$index)">-->
+                    <a ng-show="pcomponent.componentId != null && pcomponent.hasAttributes && pcomponent.isDisabled != true && pcomponent.isAvailableonSLocation" href="#" title="Configure Attributes" ng-click="renderAttrNrunExpre(pcomponent, $parent.$index, false, false, optiongroup, false);"><!-- && pcomponent.isAvailableonSLocation-->
+                        <img src="{{imagesbaseURL}}/Apttus_Config2_configure_attributes.png" />
+                    </a>
+                    <a ng-show="pcomponent.lineItem.allowCloning && pcomponent.isselected && showCloneButton && !isCapReadOnly" href="#" title="Clone" ng-click="cloneLineItem(pcomponent);">
+                        <img src="{{imagesbaseURL}}/Apttus_Config2__Image_Clone.png"/>
+                    </a>
+                    <a ng-show="pcomponent.allowCloning && !pcomponent.lineItem" href="#" title="For clone please select option" style="opacity: 0.8;cursor: default;">
+                        <img src="{{imagesbaseURL}}/Apttus_Config2__Image_Clone_Grey.png"/>
+					</a>
+                    <a tooltip="{{displayError(pcomponent)}}" ng-show="pcomponent.showErrorOnUni" href="#" title="">
+                        <span class="glyphicon glyphicon-exclamation-sign" style="color:red" aria-hidden="true"></span>
+                    </a>
+                </td>
+				<td>
+					<a href="#" ng-click="renderClonedGroup(pcomponent, $parent.$index, false, false, optiongroup.groupName);" ng-show="pcomponent.allowGrouping">
+						<img src="{{imagesbaseURL}}/group-attributes.png"  title="Expand Group of Cloned Options"/>
+					</a>
+				</td>
+            </tr>
+        </table>
+    </accordion-group>
+</accordion>

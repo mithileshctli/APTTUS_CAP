@@ -1,0 +1,66 @@
+<accordion close-others="false">
+    <accordion-group is-open="true" ng-repeat="currentAttributeGroup in attributeGroup.attributeGroups">
+        <accordion-heading>
+            <div class="accodian-heading-cap">
+                {{currentAttributeGroup.groupName}}
+            </div>
+        </accordion-heading>
+		<!--<div ng-repeat="clonedoptionattr in currentAttributeGroup">-->
+			<ng-form class="form-horizontal" name="innerForm" ng-repeat="optionattr in currentAttributeGroup.productAtributes">
+				<div class="form-group" ng-class="{'required': optionattr.isRequired}" ng-hide="optionattr.isHidden" ng-switch="pavfieldDescribeMap[optionattr.fieldName].fieldDescribe.fieldType">
+					<label class="control-label col-sm-4 attributes">
+						<div class="label-unsafe" ng-bind-html="pavfieldDescribeMap[optionattr.fieldName].fieldDescribe.fieldLabel | unsafe"></div>
+					</label>
+					
+					<!-- fieldType: Text -->
+					<div class="col-sm-8" ng-switch-when="text" ng-class="{'has-error': innerForm.text.$invalid}">
+						<input class="form-control" name="text" type="text" ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: Number -->
+					<div class="col-sm-8" ng-switch-when="number" ng-class="{'has-error': innerForm.number.$invalid}">
+						<input class="form-control" name="number" type="number"ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: Checkbox -->
+					<div class="col-sm-8" ng-switch-when="checkbox" ng-class="{'has-error': innerForm.checkbox.$invalid}">
+						<input class="form-control" name="checkbox" type="checkbox"ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: Date -->
+					<div class="col-sm-8" ng-switch-when="date" ng-class="{'has-error': innerForm.date.$invalid}">
+						<input class="form-control" name="date" type="date" ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: Datetime -->
+					<div class="col-sm-8" ng-switch-when="datetime" ng-class="{'has-error': innerForm.datetime.$invalid}">
+						<input class="form-control" name="datetime" type="datetime" ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: time -->
+					<div class="col-sm-8" ng-switch-when="time" ng-class="{'has-error': innerForm.time.$invalid}">
+						<input class="form-control" name="time" type="time" ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: url -->
+					<div class="col-sm-8" ng-switch-when="url" ng-class="{'has-error': innerForm.url.$invalid}">
+						<input class="form-control" name="url" type="url" ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: email -->
+					<div class="col-sm-8" ng-switch-when="email" ng-class="{'has-error': innerForm.email.$invalid}">
+						<input class="form-control" name="email" type="email" ng-required="optionattr.isRequired" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+					</div>
+
+					<!-- fieldType: picklist -->
+					<div class="col-sm-8" ng-switch-when="picklist">    
+						<div ng-class="{'has-error': innerForm.picklist.$invalid}">
+							<!--<select name="picklist" class="form-control" ng-options="o.value as o.label for o in optionattr.picklistValues" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-required="optionattr.isRequired" ng-change="PAVAttributeChangeGroupedClones(optionattr.fieldName);"/>-->
+							<select name="picklist" class="form-control" ng-options="o.value as o.label for o in optionattr.picklistValues" ng-model="attributeGroup.selectedValues[optionattr.fieldName]" ng-required="optionattr.isRequired" ng-change="PAVAttributeChangeGroupedClonesSave(optionattr.fieldName, attributeGroup.lineItemId, attributeGroup.selectedValues[optionattr.fieldName]);"/>
+						</div>						
+					</div>
+				</div>
+			</ng-form>
+		<!--</div>-->
+    </accordion-group>
+</accordion>

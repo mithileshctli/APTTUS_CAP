@@ -1,0 +1,22 @@
+<div class="col-md-7 col-sm-md-lg-cap pricingMatrixV" ng-show="displayPricingMatrix">
+    <div class="col-inner-cap">    
+        <h3 class="otpionGroupVie">Pricing Matrix</h3>
+
+        <!-- Pricing Matrix Pagination Start -->
+        <ng-include src="paginationLinksTemplateURL"></ng-include>
+        <!-- Pricing Matrix Pagination End -->
+        
+        <!-- Pricing Matrix Table Start -->
+        <table class="table table-bordered  table-striped table-hover otpionGroupVie">
+            <thead>
+                <th ng-repeat="dimension in dimensions">{{pavfieldDescribeMap[dimension].fieldDescribe.fieldLabel}}</th>
+            </thead>
+            <tbody>
+                <tr ng-repeat="item in pagedItems[currentPage]" class="angularPricingMtr">
+                    <td ng-repeat="dimension in dimensions" class="border-bottomPricing">{{item[dimension]}}</td>
+                </tr>
+            </tbody>
+        </table>
+        <!-- Pricing Matrix Table End -->
+    </div>                                
+</div>

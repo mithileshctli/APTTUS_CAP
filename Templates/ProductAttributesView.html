@@ -1,0 +1,76 @@
+<accordion close-others="false">
+    <accordion-group is-open="true" ng-repeat="attributeGroup in AttributeGroups">
+        <accordion-heading>
+            <div class="accodian-heading-cap">
+                {{attributeGroup.groupName}}
+            </div>
+        </accordion-heading>
+        <ng-form class="form-horizontal" name="innerForm" ng-repeat="optionattr in attributeGroup.productAtributes">
+            <div class="form-group" ng-class="{'required': optionattr.isRequired}" ng-hide="optionattr.isHidden" ng-switch="pavfieldDescribeMap[optionattr.fieldName].fieldDescribe.fieldType">
+                <label class="control-label col-sm-4 attributes">
+                    <div class="label-unsafe" ng-bind-html="pavfieldDescribeMap[optionattr.fieldName].fieldDescribe.fieldLabel | unsafe"></div>
+                </label>
+                
+                <!-- fieldType: Text -->
+                <div class="col-sm-8" ng-switch-when="text" ng-class="{'has-error': innerForm.text.$invalid}">
+                    <input class="form-control" name="text" type="text" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: Number -->
+                <div class="col-sm-8" ng-switch-when="number" ng-class="{'has-error': innerForm.number.$invalid}">
+                    <input class="form-control" name="number" type="number" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: Checkbox -->
+                <div class="col-sm-8" ng-switch-when="checkbox" ng-class="{'has-error': innerForm.checkbox.$invalid}">
+                    <input class="form-control" name="checkbox" type="checkbox" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: Date -->
+                <div class="col-sm-8" ng-switch-when="date" ng-class="{'has-error': innerForm.date.$invalid}">
+                    <input class="form-control" name="date" type="date" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: Datetime -->
+                <div class="col-sm-8" ng-switch-when="datetime" ng-class="{'has-error': innerForm.datetime.$invalid}">
+                    <input class="form-control" name="datetime" type="datetime" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: time -->
+                <div class="col-sm-8" ng-switch-when="time" ng-class="{'has-error': innerForm.time.$invalid}">
+                    <input class="form-control" name="time" type="time" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: url -->
+                <div class="col-sm-8" ng-switch-when="url" ng-class="{'has-error': innerForm.url.$invalid}">
+                    <input class="form-control" name="url" type="url" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: email -->
+                <div class="col-sm-8" ng-switch-when="email" ng-class="{'has-error': innerForm.email.$invalid}">
+                    <input class="form-control" name="email" type="email" ng-model="productAttributeValues[optionattr.fieldName]" ng-disabled="isCapReadOnly" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                </div>
+
+                <!-- fieldType: picklist -->
+                <div class="col-sm-8" ng-switch-when="picklist" ng-class="showReusableIcon(optionattr)">    
+                    <div ng-class="{'has-error': innerForm.picklist.$invalid}">
+                        <select name="picklist" class="form-control" ng-options="o.value as o.label for o in optionattr.picklistValues" ng-model="productAttributeValues[optionattr.fieldName]" ng-change="PAVPicklistChange(optionattr.fieldName, '{{productAttributeValues[optionattr.fieldName]}}');" ng-readonly="optionattr.isReadOnly" ng-disabled="optionattr.isReadOnly || isCapReadOnly" ng-required="optionattr.isRequired"/>
+						<a ng-show="showReusableIcon(optionattr)" href="#" title="Change UNI" ng-click="reSearchUNI();"><!-- && pcomponent.isAvailableonSLocation-->
+                           <img src="{{imagesbaseURL}}/Apttus_Config2__Image_Search.png"/>
+                       </a>
+                       <div class="clearfix"></div>
+                    </div>
+                    <div ng-show="productAttributeValues[optionattr.fieldName] == 'Other' && !optionattr.numericServiceTerm" ng-class="{'has-error': innerForm.picklistOther.$invalid}">
+                        <input name="picklistOther" class="form-control" ng-show="productAttributeValues[optionattr.fieldName] == 'Other'" ng-disabled="isCapReadOnly" type="text"  ng-model="productAttributeValues[optionattr.fieldName+'Other']" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                    </div>
+					<div ng-show="productAttributeValues[optionattr.fieldName] == 'Other' && optionattr.numericServiceTerm" ng-class="{'has-error': innerForm.picklistOther.$invalid}">
+                        <input name="picklistOther" class="form-control" ng-show="productAttributeValues[optionattr.fieldName] == 'Other'" ng-disabled="isCapReadOnly" type="number"  ng-model="productAttributeValues[optionattr.fieldName+'Other']" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                    </div>
+                    <div ng-show="productAttributeValues[optionattr.fieldName] == 'Legacy'" ng-class="{'has-error': innerForm.picklistLegacy.$invalid}">
+                        <input name="picklistLegacy" class="form-control" ng-show="productAttributeValues[optionattr.fieldName] == 'Legacy'" ng-disabled="isCapReadOnly" type="text"  ng-model="productAttributeValues[optionattr.fieldName+'Legacy']" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="true" ng-required="optionattr.isRequired"/>
+                    </div>
+                </div>
+            </div>
+        </ng-form>
+    </accordion-group>
+</accordion>
