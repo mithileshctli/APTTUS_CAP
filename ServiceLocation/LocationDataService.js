@@ -36,6 +36,7 @@
 		service.getLocationAvailabilityforOption = getLocationAvailabilityforOption;
 		service.getAvailableOptionProducts = getAvailableOptionProducts;
 		service.getLocationAvailabilityMetroAccess = getLocationAvailabilityMetroAccess;
+		service.getLocationAvailabilityCQLLocationType = getLocationAvailabilityCQLLocationType;
 		service.checkLocationPattern = checkLocationPattern;
 		service.getDisplayLocations = getDisplayLocations;
 		service.specialCharsValidation = specialCharsValidation;
@@ -177,6 +178,20 @@
 				})
 			}
 			return accessMarket;
+		}
+
+		function getLocationAvailabilityCQLLocationType(locId){
+			var cqlLocationType = '';
+			if(_.has(locIdtolocAvlsMap, locId))
+			{
+				_.each(locIdtolocAvlsMap[locId], function(item){
+					if(_.has(item, 'Company_Qualified_Location__r') && item.Company_Qualified_Location__r.CQL_Loc_Type__c != null){
+						cqlLocationType = item.Company_Qualified_Location__r.CQL_Loc_Type__c;
+						return;
+					}
+				})
+			}
+			return cqlLocationType;
 		}
 
 		function initializeLocations(response, cqlResponse) {

@@ -60,13 +60,13 @@
                        </a>
                        <div class="clearfix"></div>
                     </div>
-                    <div ng-show="productAttributeValues[optionattr.fieldName] == 'Other' && !optionattr.numericServiceTerm" ng-class="{'has-error': innerForm.picklistOther.$invalid}">
-                        <input name="picklistOther" class="form-control" ng-show="productAttributeValues[optionattr.fieldName] == 'Other'" ng-disabled="isCapReadOnly" type="text"  ng-model="productAttributeValues[optionattr.fieldName+'Other']" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
+                    <div ng-show="productAttributeValues[optionattr.fieldName] == 'Other'" ng-class="{'has-error': innerForm.picklistOther.$invalid}">
+                        <input name="picklistOther" class="form-control" ng-show="productAttributeValues[optionattr.fieldName] == 'Other'" ng-disabled="isCapReadOnly" type="optionattr.serviceTermOtherField"  ng-model="productAttributeValues[optionattr.fieldName+'Other']" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
                     </div>
-					<div ng-show="productAttributeValues[optionattr.fieldName] == 'Other' && optionattr.numericServiceTerm" ng-class="{'has-error': innerForm.picklistOther.$invalid}">
+					<!--<div ng-show="productAttributeValues[optionattr.fieldName] == 'Other' && optionattr.numericServiceTerm" ng-class="{'has-error': innerForm.picklistOther.$invalid}">
                         <input name="picklistOther" class="form-control" ng-show="productAttributeValues[optionattr.fieldName] == 'Other'" ng-disabled="isCapReadOnly" type="number"  ng-model="productAttributeValues[optionattr.fieldName+'Other']" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="optionattr.isReadOnly" ng-required="optionattr.isRequired"/>
-                    </div>
-                    <div ng-show="productAttributeValues[optionattr.fieldName] == 'Legacy'" ng-class="{'has-error': innerForm.picklistLegacy.$invalid}">
+                    </div>-->
+                    <div ng-show="productAttributeValues[optionattr.fieldName] == 'Legacy' && !optionattr.numericServiceTerm" ng-class="{'has-error': innerForm.picklistLegacy.$invalid}">
                         <input name="picklistLegacy" class="form-control" ng-show="productAttributeValues[optionattr.fieldName] == 'Legacy'" ng-disabled="isCapReadOnly" type="text"  ng-model="productAttributeValues[optionattr.fieldName+'Legacy']" ng-change="PAVAttributeChange(optionattr.fieldName);" ng-readonly="true" ng-required="optionattr.isRequired"/>
                     </div>
                 </div>

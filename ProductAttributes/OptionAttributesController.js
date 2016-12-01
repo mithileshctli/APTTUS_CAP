@@ -158,18 +158,14 @@
             var serviceTermOrverride = [];
             serviceTermOrverride['Local Access'] = 'Local Access';
             serviceTermOrverride['Transport Options - Local Access'] = 'Transport Options - Local Access';
-			serviceTermOrverride['Rental Switch'] = 'Rental Switch';
-			
-			//specific to Lion :: CE
-			serviceTermOrverride['Single CoS Options'] = 'Single CoS Options';
-			serviceTermOrverride['EVC'] = 'EVC';
-			serviceTermOrverride['UNI(s)'] = 'UNI(s)';
-			serviceTermOrverride['UNI Options'] = 'UNI Options';
+			serviceTermOrverride['Rental Switch'] = 'Rental Switch';			
 
             _.each(bunleAttributeFields, function(field){
                 //if($scope.currentOptionGroupName != 'Local Access' || $scope.currentOptionGroupName != 'Transport Options - Local Access'){
                 if(!_.has(serviceTermOrverride, $scope.currentOptionGroupName)){
                     optionPAV[field] = bundlePAV[field];
+					if(_.has(bundlePAV, 'Service_Term__c') && bundlePAV['Service_Term__c'] == 'Other')
+						optionPAV['Service_Term__cOther'] = bundlePAV['Service_Term__cOther'];
                 }else{
                     if(_.has(optionPAV, 'Service_Term__c') && (_.isEmpty(optionPAV['Service_Term__c']) || optionPAV['Service_Term__c'] == null)){
                         optionPAV['Service_Term__c'] = bundlePAV['Service_Term__c'];
@@ -535,6 +531,6 @@
 
         $scope.init();
     }
-    OptionAttributesController.$inject = ['$scope', '$log', 'BaseService', 'BaseConfigService', 'RemoteService', 'LocationDataService', 'OptionGroupDataService', 'ProductAttributeConfigDataService', 'ProductAttributeValueDataService', 'PAVObjConfigService', 'RemoteService', 'LineItemAttributeValueDataService', 'LineItemService', 'MessageService'];
+    OptionAttributesController.$inject = ['$scope', '$log', 'BaseService', 'BaseConfigService', 'RemoteService', 'LocationDataService', 'OptionGroupDataService', 'ProductAttributeConfigDataService', 'ProductAttributeValueDataService', 'PAVObjConfigService', 'RemoteService', 'LineItemAttributeValueDataService', 'LineItemService'];
     angular.module('APTPS_ngCPQ').controller('OptionAttributesController', OptionAttributesController);
 }).call(this);

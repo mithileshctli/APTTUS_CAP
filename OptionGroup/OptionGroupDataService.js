@@ -76,6 +76,7 @@
 		service.getLineItemsValidation = getLineItemsValidation;
 		service.showCoSSelectionError = showCoSSelectionError;
 		service.setInvalidAccessEVCFlag = setInvalidAccessEVCFlag;
+		service.L3PPevcValidation = L3PPevcValidation;
 
         function getallOptionGroups(){
             return OptionGroupCache.getOptionGroups();
@@ -610,7 +611,7 @@
 				});
 			}
 		}
-
+		
 		function setInvalidAccessEVCFlag(invalidFlag, cosLine){
 			var allOptionGroups = getallOptionGroups();
 			var evcOptionGroup = {}; 
@@ -624,6 +625,32 @@
 					}
 				});
 			});
+		}
+		
+		function L3PPevcValidation(pcComponent, allLineItems,optionGroup, bundleProdName){
+			if(!_.isUndefined(optionGroup) && !_.isUndefined(bundleProdName)){
+				var optionGroupsToCount = [];
+				var componentId = pcComponent.componentId;
+				var componentCount = 0;
+				optionGroupsToCount['EVC CoS Options'] = 'EVC CoS Options';
+				optionGroupsToCount['EVC Add Ons'] = 'EVC Add Ons';
+				if(bundleProdName.toLowerCase() == 'L3 IQ Networking Private Port'.toLowerCase() && _.has(optionGroupsToCount, optionGroup)){
+					if(!_.isNull(allLineItems) && !_.isUndefined(allLineItems)){
+						_.each(allLineItems, function(item){
+							if(item.componentId == componentId)
+								componentCount++;
+						});
+						pcComponent.lineItemsCount = componentCount;
+						return pcComponent;
+					}else{
+						return pcComponent;
+					}
+				}else{
+					return pcComponent;
+				}
+			}else{
+				return pcComponent;
+			}
 		}
     }
 })();

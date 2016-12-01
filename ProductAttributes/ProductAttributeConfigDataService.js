@@ -25,6 +25,9 @@
 		var guaranteedCOSBand = '';
 		var businessCOSBand = '';
 		var cosBandwithLimitExc = false;
+		var CosSum = 0;
+		var l3ppBandPrt = '';
+		var owsMetroQCCOnNet = false;
 
 		// product attribute methods.
 		
@@ -92,6 +95,13 @@
 		service.liteServiceTerm = liteServiceTerm;
 		service.validateL3PPUNIBandwidth = validateL3PPUNIBandwidth;
 		service.cosBandwithLimitExc = cosBandwithLimitExc;
+		service.recalculateL3PPCosBandwidth = recalculateL3PPCosBandwidth;
+		service.CosSum = CosSum;
+		service.l3ppBandPrt = l3ppBandPrt;
+		service.realTimeCOSBand = realTimeCOSBand;
+		service.guaranteedCOSBand = guaranteedCOSBand;
+		service.businessCOSBand = businessCOSBand;
+		service.owsMetroQCCOnNet = owsMetroQCCOnNet;
 		
 		function getProductAttributesConfig_bulk(servicelocationIdSet, productIds, groupIds) {
 			// check if cachedProductAttributes has products requested for else make a remote call.
@@ -1073,31 +1083,29 @@
 
 		function setBandWidthToUNIAttributes(attributeGroups, attributeValues){
 			var selectedBandwidth = getCalculatedUNIBandwidth(false);
-			var lineItemsToOptionPAVMap = LineItemAttributeValueDataService.getlineItemIdToAttributesValues();
-			var lineItemToSave = LineItemService.getLineItemsToSave();
+
 			if(selectedBandwidth){
 				attributeValues['EVC_Bandwidth__c'] = selectedBandwidth;
 			}
-			var allLineItems = LineItemService.getCurrentSelectedLineItemBundle();;
-            var uniLineItem = _.where(allLineItems, {optionName: 'UNI'});
-			_.each(allLineItems, function(lineItem){
-				if(uniLineItem){
-					var PAV = lineItemsToOptionPAVMap[lineItem.lineItemId];
-					var uniPAV = lineItemsToOptionPAVMap[uniLineItem[0].lineItemId];
-					if(PAV && uniPAV && (lineItem.optionName == 'Business Class CoS'|| lineItem.optionName == 'EVC Point to Point' || lineItem.optionName == 'EVC Multipoint')) {
-						PAV['Location_A__c'] = uniPAV['Location_A__c'];
-						PAV['Location_A__c'] = uniPAV['Location_A__c'];
-						lineItemToSave[lineItem.lineItemId] = PAV;
+			//Adding to populate Other service Term to all options for CE
+			var allLineItems = LineItemService.getAllLineItems();
+			var bundleAttributes = ProductAttributeValueDataService.getbundleproductattributevalues();
+			var lineItemsToOptionPAVMap = LineItemAttributeValueDataService.getlineItemIdToAttributesValues();
+			if(_.has(bundleAttributes, 'Service_Term__c') && bundleAttributes['Service_Term__c'] == 'Other'){
+				_.each(allLineItems, function(line){
+					var lineItemPAV = lineItemsToOptionPAVMap[line.lineItemId];
+					if(_.has(lineItemPAV, 'Service_Term__c')){
+						lineItemPAV['Service_Term__cOther'] = bundleAttributes['Service_Term__cOther'];
 					}
-				}
-			});
+				});
+			}
 			//if(_.has(attributeValues, 'UNI_Billable_Bandwidth__c')){								
 				var lineItems = LineItemService.getUNILineItems();
 				if(_.isEmpty(lineItems))
 					return;           
 				
 				//var lineItemsToOptionPAVMap = LineItemAttributeValueDataService.getlineItemIdToAttributesValues();
-				//var lineItemToSave = LineItemService.getLineItemsToSave();
+				var lineItemToSave = LineItemService.getLineItemsToSave();;
 				_.each(lineItems, function(lineItem){
 					var parentLineItem = _.findWhere(lineItems, {primaryLineNumber: lineItem.parentBundleNumber});
 
@@ -1406,6 +1414,7 @@
 		function OWSSetLocationAccessMarket(selectedoptionproduct, pav,attributeGroups){
 			var bundleProductName = BaseConfigService.lineItem.bundleProdName;
 			var  selectedProductName = selectedoptionproduct.productName;
+			service.owsMetroQCCOnNet = false;
 			if(bundleProductName == 'E-Line' && selectedoptionproduct.optionGroupName == 'E-Line Solution' && pav['Location_A__c']
 				&& pav['Location_Z__c']){
 				var allLocations = ProductAttributeValueDataService.allLocations;
@@ -1441,27 +1450,34 @@
 				if(selectedProductName == 'Wavelength Local Access A' && pav['Location_A__c']){
 					var selectedLocation = _.findWhere(allLocations, {Id : pav['Location_A__c']});
 					var accessMarket = LocationDataService.getLocationAvailabilityMetroAccess(pav['Location_A__c']);
+					var cqlLocationType = LocationDataService.getLocationAvailabilityCQLLocationType(pav['Location_A__c']);
 					service.OWSAccessMarketA = {
 						location : selectedLocation,
-						market : accessMarket
+						market : accessMarket,
+						locationType : cqlLocationType
 					}
 				}
 
 				if(selectedProductName == 'Wavelength Local Access Z' && pav['Location_Z__c']){
 					var selectedLocation = _.findWhere(allLocations, {Id : pav['Location_Z__c']});
 					var accessMarket = LocationDataService.getLocationAvailabilityMetroAccess(pav['Location_Z__c']);
+					var cqlLocationType = LocationDataService.getLocationAvailabilityCQLLocationType(pav['Location_Z__c']);
 					service.OWSAccessMarketZ = {
 						location : selectedLocation,
-						market : accessMarket
+						market : accessMarket,
+						locationType : cqlLocationType
 					}
 
 				}
+
 				if(service.OWSAccessMarketA &&
 					service.OWSAccessMarketZ &&
 					service.OWSAccessMarketA.market &&
 					service.OWSAccessMarketZ.market) {
 					var bundlePAV = ProductAttributeValueDataService.getbundleproductattributevalues();
 					if(service.OWSAccessMarketA.market == service.OWSAccessMarketZ.market) {
+						if(service.OWSAccessMarketZ.locationType !=  "QCC On-Net" && service.OWSAccessMarketA.locationType !=  "QCC On-Net")
+							service.owsMetroQCCOnNet = true;
 						bundlePAV['OWS_Solution__c'] = 'Metro';
 					} else if (service.OWSAccessMarketA.market != service.OWSAccessMarketZ.market){
 						bundlePAV['OWS_Solution__c'] = 'Long Haul';
@@ -2122,8 +2138,9 @@
 			if(fieldName != "Location_A__c" && fieldName != "UNI_Billable_Bandwidth__c")
 				return;
 			var bundleProductName = BaseConfigService.lineItem.bundleProdName;
-            if(bundleProductName.toLowerCase() != 'CenturyLink Ethernet'.toLowerCase())
+            if(bundleProductName.toLowerCase() != 'CenturyLink Ethernet'.toLowerCase() && bundleProductName.toLowerCase() != 'L3 IQ Networking Private Port'.toLowerCase()){
 				return;
+			}				
 			if(!currentSelectedLineItem)
 				return;
 			if(currentSelectedLineItem != "UNI")
@@ -2438,18 +2455,21 @@
 			if(_.isUndefined(quoteSourceCode) || _.isNull(quoteSourceCode)){
 				quoteSourceCode = 'pro';
 			}
-			
-			if(!_.isUndefined(attributeGroups) && !_.isNull(attributeGroups)){
-				_.each(attributeGroups, function(atrGroup){
-					_.each(atrGroup.productAtributes, function(atr){
-						if(atr.fieldName.toLowerCase() == 'Service_Term__c'.toLowerCase() && quoteSourceCode.toLowerCase() == 'LITE'.toLowerCase()){
-							atr.numericServiceTerm = true;
-						}else{
-							atr.numericServiceTerm = false;
-						}
+			//if(quoteSourceCode.toLowerCase() == 'LITE'.toLowerCase()){	
+				if(!_.isUndefined(attributeGroups) && !_.isNull(attributeGroups)){
+					_.each(attributeGroups, function(atrGroup){
+						_.each(atrGroup.productAtributes, function(atr){
+							if(atr.fieldName.toLowerCase() == 'Service_Term__c'.toLowerCase() && quoteSourceCode.toLowerCase() == 'LITE'.toLowerCase()){
+								atr.numericServiceTerm = true;
+								atr.serviceTermOtherField = 'number';
+							}else{
+								atr.numericServiceTerm = false;
+								atr.serviceTermOtherField = 'text';
+							}
+						});
 					});
-				});
-			}
+				}
+			//}
 		}
 		
 		//Added by David (Dato) Tsamalashvili - US73057 - 11/01/2016
@@ -2465,6 +2485,7 @@
 					if(currentOptionGroupName.toLowerCase() == 'Port Type'.toLowerCase()){
 						if(_.has(productAttributeValues, 'Bandwidth_ELA__c'))
 							L3PPPortBandwidthForUNI = productAttributeValues['Bandwidth_ELA__c'];
+							service.l3ppBandPrt = productAttributeValues['Bandwidth_ELA__c'];
 					}else if(currentOptionGroupName.toLowerCase() == 'EVC CoS Options'.toLowerCase()){
 						if(!_.isEmpty(L3PPPortBandwidthForUNI) && !_.isUndefined(L3PPPortBandwidthForUNI)){
 							var bandWidthAttrs = [];
@@ -2479,8 +2500,10 @@
 								var preparedCOSBandwidth = [];
 								if(bandWidthAttrs.length > 0){
 									_.each(bandWidthAttrs, function(item){
-										atributesString += item['COS_Bandwidth__c'];
-										portBandwidthValueInt = parseInt(item['Port_Bandwidth_Value__c']);
+										if(!_.isUndefined(item)){
+											atributesString += item['COS_Bandwidth__c'];
+											portBandwidthValueInt = parseInt(item['Port_Bandwidth_Value__c']);
+										}										
 									});
 									filteredValuesBilBand = atributesString.split(',');
 									
@@ -2499,11 +2522,11 @@
 												atrItem.isReadOnly = false;
 											}
 											if(atrItem.fieldName.toLowerCase() == 'Real_Time_COS__c'.toLowerCase()){
-												realTimeCOSBand = productAttributeValues['Real_Time_COS__c'];
+												service.realTimeCOSBand = productAttributeValues['Real_Time_COS__c'];
 											}else if(atrItem.fieldName.toLowerCase() == 'Guaranteed_COS__c'.toLowerCase()){
-												guaranteedCOSBand = productAttributeValues['Guaranteed_COS__c'];
+												service.guaranteedCOSBand = productAttributeValues['Guaranteed_COS__c'];
 											}else if(atrItem.fieldName.toLowerCase() == 'Business_Class_COS__c'.toLowerCase()){
-												businessCOSBand = productAttributeValues['Business_Class_COS__c'];
+												service.businessCOSBand = productAttributeValues['Business_Class_COS__c'];
 											}
 										});
 									});
@@ -2511,40 +2534,41 @@
 									var realTimeInt = '';
 									var guaranteedInt = '';
 									var businessInt = '';
-									var CosSum = 0;
+									var CosSumEV = 0;
 									
-									if(!_.isEmpty(realTimeCOSBand)){
-										if(realTimeCOSBand.endsWith(' Mbps')){
-											realTimeInt = realTimeCOSBand.replace(' Mbps','');
-											CosSum += parseInt(realTimeInt);
-										}else if(realTimeCOSBand.endsWith(' Gbps')){
-											realTimeInt = realTimeCOSBand.replace(' Gbps','');
+									if(!_.isEmpty(service.realTimeCOSBand)){
+										if(service.realTimeCOSBand.endsWith(' Mbps')){
+											realTimeInt = service.realTimeCOSBand.replace(' Mbps','');
+											CosSumEV += parseInt(realTimeInt);
+										}else if(service.realTimeCOSBand.endsWith(' Gbps')){
+											realTimeInt = service.realTimeCOSBand.replace(' Gbps','');
 											realTimeInt = realTimeInt*1000;
-											CosSum += parseInt(realTimeInt);
+											CosSumEV += parseInt(realTimeInt);
 										}
 									}
-									if(!_.isEmpty(guaranteedCOSBand)){
-										if(guaranteedCOSBand.endsWith(' Mbps')){
-											guaranteedInt = guaranteedCOSBand.replace(' Mbps','');
-											CosSum += parseInt(guaranteedInt);
-										}else if(guaranteedCOSBand.endsWith(' Gbps')){
-											guaranteedInt = guaranteedCOSBand.replace(' Gbps','');
+									if(!_.isEmpty(service.guaranteedCOSBand)){
+										if(service.guaranteedCOSBand.endsWith(' Mbps')){
+											guaranteedInt = service.guaranteedCOSBand.replace(' Mbps','');
+											CosSumEV += parseInt(guaranteedInt);
+										}else if(service.guaranteedCOSBand.endsWith(' Gbps')){
+											guaranteedInt = service.guaranteedCOSBand.replace(' Gbps','');
 											guaranteedInt = guaranteedInt*1000;
-											CosSum += parseInt(guaranteedInt);
+											CosSumEV += parseInt(guaranteedInt);
 										}
 									}
-									if(!_.isEmpty(businessCOSBand)){
-										if(businessCOSBand.endsWith(' Mbps')){
-											businessInt = businessCOSBand.replace(' Mbps','');
-											CosSum += parseInt(businessInt);
-										}else if(businessCOSBand.endsWith(' Gbps')){
-											businessInt = businessCOSBand.replace(' Gbps','');
+									if(!_.isEmpty(service.businessCOSBand)){
+										if(service.businessCOSBand.endsWith(' Mbps')){
+											businessInt = service.businessCOSBand.replace(' Mbps','');
+											CosSumEV += parseInt(businessInt);
+										}else if(service.businessCOSBand.endsWith(' Gbps')){
+											businessInt = service.businessCOSBand.replace(' Gbps','');
 											businessInt = businessInt*1000;
-											CosSum += parseInt(businessInt);
+											CosSumEV += parseInt(businessInt);
 										}
 									}
 									
-									if(CosSum > portBandwidthValueInt){
+									service.CosSum = CosSumEV;
+									if(CosSumEV > portBandwidthValueInt){
 										service.cosBandwithLimitExc = true;
 										//MessageService.addMessage('Validation Error', 'The sum of COS bandwidth can not exceed the IQ Port Bandwidth.');
 									}else{
@@ -2634,6 +2658,75 @@
 									});									
 								}
 							}	
+						}
+					}
+				}
+			}
+		}
+		
+		function recalculateL3PPCosBandwidth(pcComponent, bundleProdName){
+			if(bundleProdName.toLowerCase() == 'L3 IQ Networking Private Port'.toLowerCase()){
+				var l3ppUNIPortOptionAtrs = PAVObjConfigService.getL3PPUNIPortOptions();
+				if(!_.isUndefined(l3ppUNIPortOptionAtrs) && !_.isEmpty(l3ppUNIPortOptionAtrs)){
+					l3ppUNIPortOptionAtrs.sort(function(a,b){
+						return a.Name - b.Name
+					});
+				}
+				
+				var cosOptions = [];
+				cosOptions['Real Time COS'.toLowerCase()] = 'Real_Time_COS__c';
+				cosOptions['Guaranteed CoS'.toLowerCase()] = 'Guaranteed_COS__c';
+				cosOptions['Business Class CoS'.toLowerCase()] = 'Business_Class_COS__c';
+				if(_.has(cosOptions,pcComponent.productName.toLowerCase()) && !pcComponent.isselected){
+					//var allPavs = ProductAttributeValueDataService.setAllComponentsToOptionPAV();
+					var allPavs = ProductAttributeValueDataService.getoptionproductattributevalues()
+					var currentCompAttributes = allPavs[pcComponent.componentId];
+					if(_.isUndefined(currentCompAttributes) && _.has(pcComponent, 'lineItem')){
+						_.each(allPavs, function(pavItem){
+							if(_.has(pavItem, 'Apttus_Config2__LineItemId__c')){
+								if(pavItem['Apttus_Config2__LineItemId__c'] == pcComponent.lineItem.lineItemId)
+									currentCompAttributes = pavItem;
+							}								
+						});						
+					}
+					if(!_.isUndefined(currentCompAttributes) && !_.isNull(currentCompAttributes)){
+						var currentBandwidth = currentCompAttributes[cosOptions[pcComponent.productName.toLowerCase()]];
+						var currentBandwidthAPI = cosOptions[pcComponent.productName.toLowerCase()];
+						var portBandwidthValueInt = 0;
+						var parsedPortBandwidth = 0;
+						
+						if(currentBandwidthAPI.toLowerCase() == 'Real_Time_COS__c'.toLowerCase()){
+							service.realTimeCOSBand = ''
+						}else if(currentBandwidthAPI.toLowerCase() == 'Guaranteed_COS__c'.toLowerCase()){
+							service.guaranteedCOSBand = ''
+						}else if(currentBandwidthAPI.toLowerCase() == 'Business_Class_COS__c'.toLowerCase()){
+							service.businessCOSBand = ''
+						}
+						
+						if(!_.isUndefined(currentBandwidth) && !_.isNull(currentBandwidth)){						
+							var filteredOption = _.findWhere(l3ppUNIPortOptionAtrs, {'Port_Bandwidth__c': currentBandwidth, 'Option_Product_Name__c': pcComponent.productName});
+							if(!_.isUndefined(filteredOption)){
+								portBandwidthValueInt = parseInt(filteredOption['Port_Bandwidth_Value__c']);
+							}
+							if(!_.isUndefined(portBandwidthValueInt) && !_.isNull(portBandwidthValueInt)){
+								service.CosSum = service.CosSum - portBandwidthValueInt;
+							}
+							if(!_.isUndefined(!pcComponent.isselected) && !_.isNull(!pcComponent.isselected)){
+								if(service.l3ppBandPrt.endsWith(' Mbps')){
+									var bandW = service.l3ppBandPrt.replace(' Mbps','');
+									parsedPortBandwidth = parseInt(bandW);
+								}else if(service.l3ppBandPrt.endsWith(' Gbps')){
+									var bandW = service.l3ppBandPrt.replace(' Gbps','');
+									bandW = bandW*1000;
+									parsedPortBandwidth = parseInt(bandW);
+								}
+								
+								if(service.CosSum > parsedPortBandwidth){
+									service.cosBandwithLimitExc = true;
+								}else{
+									service.cosBandwithLimitExc = false;
+								}		
+							}
 						}
 					}
 				}

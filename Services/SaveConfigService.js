@@ -1,5 +1,5 @@
 ;(function() {
-    'use strict';
+    'use strict'; 
 
     angular.module('APTPS_ngCPQ').service('SaveConfigService', SaveConfigService);
     SaveConfigService.$inject = [ '$q',
@@ -177,14 +177,12 @@
                 _.each(allOptionGroups, function(optiongroups, bProductId){
                     _.each(optiongroups, function(optiongroup){
                         _.each(optiongroup.optionLines, function(optionLine){
-                            if(!optionLine.isselected || optionLine.productName == 'None'){
-								if(!isL3PP())
-									return;
-							} 
+                            if(!optionLine.isselected || optionLine.productName == 'None') return;
                             var parentId = optionLine.parentOptionPrimaryNumber;
                             if(!parentId || parentId == 0)
                                 parentId = BaseConfigService.lineItem.primaryLineNumber;
                             var objectData = {
+                                quantityForDistinctClone : null,
                                 componentId: optionLine.componentId,
                                 lineItemId: optionLine.lineItem ? optionLine.lineItem.lineItemId : null,
                                 attributes1: {},
@@ -196,6 +194,9 @@
 
                             if(!optionLine.lineItem && optionLine.createItem){
                                 objectData.createItem = true;
+                            }
+                            if(optionLine.allowCloning == true){
+                                objectData.quantityForDistinctClone = optionLine.quantity;
                             }
                             if(!optionLine.hasAttributes){
                                 objectData = optionLineCustomActions(objectData);
@@ -560,43 +561,7 @@
 								}								
 						});
 					}
-				}
-				
-				//Added by David (Dato) Tsamalashvili - 10/31/2016 - DE11712
-				
-				if(BaseConfigService.bundleLineItemInfo.productName.toLowerCase() == 'L3 IQ Networking Private Port'.toLowerCase()){
-					var skipEVCDelete = [];
-					skipEVCDelete['UNI Port'] = 'UNI Port';
-					skipEVCDelete['NID'] = 'NID';
-					skipEVCDelete['NMI Affiliate'] = 'NMI Affiliate';
-					if(!_.isEmpty(productcomponentstobeUpserted) && !_.isUndefined(productcomponentstobeUpserted)){
-						var productsToUpsert = [];
-						var optionsLineItemIds = [];
-						var optionsComponentsIds = [];
-						_.each(productcomponentstobeUpserted, function(item){
-							if(item.isselected || _.has(skipEVCDelete, item.productName)){
-								productsToUpsert.push(item);
-								optionsComponentsIds[item.componentId] = item.componentId;
-									if(_.has(item, 'lineItemId'))
-										optionsLineItemIds[item.lineItemId] = item.lineItemId;
-							}
-								
-						});
-						productcomponentstobeUpserted = productsToUpsert;
-						
-						if(!_.isUndefined(optionLineAttributes) && !_.isEmpty(optionLineAttributes)){
-							if((!_.isEmpty(optionsComponentsIds) && !_.isUndefined(optionsComponentsIds)) || !_.isEmpty(optionsLineItemIds) && !_.isUndefined(optionsLineItemIds)){
-								var L3PPAttributes = [];
-								_.each(optionLineAttributes, function(atrs){
-									if(_.has(optionsComponentsIds, atrs.componentId) || _.has(optionsLineItemIds, atrs.lineItemId))
-										L3PPAttributes.push(atrs);
-								});
-								optionLineAttributes = L3PPAttributes;
-							}
-						}
-						LineItemService.updateLineItemCach();
-					}
-				}
+				}				
 				
                 // remote call to save Quote Config.
                 var saveRequest = {
@@ -1006,6 +971,7 @@
             var hasLocations = LocationDataService.gethasServicelocations();
 			var l3ppCOSvalidation = ProductAttributeConfigDataService.cosBandwithLimitExc;
 			var showCoSSelectionError = OptionGroupDataService.showCoSSelectionError;
+            var owsMetroQCCOnNetMsg = ProductAttributeConfigDataService.owsMetroQCCOnNet;
             if(_.isEmpty(servicelocation)
                 && hasLocations)
             {
@@ -1013,13 +979,15 @@
                 MessageService.addMessage('danger', 'Please select location to Proceed.');
                 res = false;
             }
-			
 			if(showCoSSelectionError){
 				MessageService.addMessage('danger', 'You must select either one or three CoS Options. You cannot have two.');
 			}
 			if(l3ppCOSvalidation){
-				MessageService.addMessage('Validation Error', 'The sum of COS bandwidth can not exceed the IQ Port Bandwidth.');
+				MessageService.addMessage('danger', 'The sum of COS bandwidth can not exceed the IQ Port Bandwidth.');
 			}
+            if(owsMetroQCCOnNetMsg){
+                MessageService.addMessage('danger', 'At least one location needs to be QCC On-Net for OWS Metro');
+            }
 
             allcomponentIdToOptionPAVMap = ProductAttributeValueDataService.getoptionproductattributevalues();
             allLineItemsToOptionLineAttrMap = LineItemAttributeValueDataService.getlineItemIdToAttributesValues();
@@ -1228,7 +1196,7 @@
 							//Adding to throw error, if configuration has invalid UNIs : Mithilesh							
 							var hasInvalidUNI = isInvalidUNI();
 							var hasInvalidEVC = isInvalidEVC();
-							
+														
 							if(hasInvalidUNI)
 								errors.push("Configuration contains invalid UNIs, Please Remove/Re-configure invalid UNIs to Proceed.");							
 							if(hasInvalidEVC)
@@ -1268,7 +1236,7 @@
 			});
 			return invalidUNI;
 		}
-		
+	
 		function isInvalidEVC(){
 			var invalidEVC = false;
 			var evcOptionGroup = {};
@@ -1341,6 +1309,7 @@
 						if(quoteSoruceCode !=  null && !_.isUndefined(quoteSoruceCode) && quoteSoruceCode.toLowerCase() == 'LITE'.toLowerCase() && keywithnootherLegacy.toLowerCase() == 'Service_Term__c'.toLowerCase()){
 							var pavST = pav[key]+ (otherorlegacy == 'Other' ? '**' : '***');							
 							pav[keywithnootherLegacy] = pavST.toString();
+							//pav[keywithnootherLegacy] = parseInt(pavST);
 						}else{
 							pav[keywithnootherLegacy] = pav[key]+ (otherorlegacy == 'Other' ? '**' : '***');
 						}
