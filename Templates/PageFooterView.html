@@ -1,0 +1,25 @@
+<nav class="navbar navbar-fixed-bottom navbar-default footerBackground" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-form">
+            <div class="navbar-center" ng-hide="isLargeQuote">
+                <!--<button ng-disabled="ProgressBartinprogress" class="btn btn-success" ng-click="addMoreProducts()">Add More Products</button>-->
+                <button class="btn btn-success" ng-click="launch('confirmRemoveItem')">Remove Item</button>
+                <button ng-disabled="ProgressBartinprogress || isFinalized" class="btn btn-success" ng-click="GoToPricing()">Go to Pricing</button>
+                <button class="btn btn-success" ng-click="launch('confirmAbandon')">Abandon</button>
+            </div>
+			
+			<div class="navbar-center" ng-show="isLargeQuote">
+                <button ng-disabled="ProgressBartinprogress" class="btn btn-success" ng-click="addMoreProducts()">Add More Products</button>
+                <button ng-disabled="ProgressBartinprogress" class="btn btn-success" ng-click="GoToPricing()">Save</button>
+                <button ng-disabled="ProgressBartinprogress" class="btn btn-success" ng-click="launchCopySite()">Copy Site</button>
+                <!--<button class="btn btn-success" ng-click="launch('confirmAbandon')">Abandon</button>-->
+            </div>
+			
+            <div class="navbar-right">
+                <a href="#">
+                    <img src="{{imagesbaseURL}}/CenturyLinkBusinessLogo_PNG.png" alt="CenturyLink" title="CenturyLink" class="ctlLogo"/>
+                </a>
+            </div>
+        </div>
+    </div>
+</nav>

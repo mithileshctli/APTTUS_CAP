@@ -1,0 +1,31 @@
+<div class="modal-content" style="z-index: auto !important">
+	<div class="modal-header customModalHeader">
+		<h4 class="modal-title">				
+			Help for {{currentOptionComponent.productName}}
+		</h4>
+	</div>
+	<div class="modal-body">			
+		<div class="help-block">
+		
+			<table>
+				<tr ng-repeat="helpFl in currentOptionComponent.infoData">
+					<td class="sensitiveHelpLabel">
+						<label class="control-label floatLeftDiv">
+							{{helpFl.name}}
+						</label>
+					</td>
+					<td>
+						<span class="help-block marginLeftDiv">
+							{{helpFl.value}}
+						</span>
+					</td>
+				</tr>
+			</table>
+		</div>			
+	</div>		
+	<div class="modal-footer">
+		<button type="button" class="btn btn-success" ng-click="closeHelpModal()">
+			Close
+		</button>
+	</div>
+</div>

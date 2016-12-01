@@ -1,0 +1,53 @@
+<div class="modal-content" style="z-index: auto !important;">
+	<div class="modal-header customModalHeader">
+		<h4 class="modal-title">				
+			Configuration - Copy Site
+		</h4>
+	</div>
+	<div class="modal-body">
+		<div>
+		<button class="btn btn-success" ng-click="selectAllLocs()">Select All</button>
+		<button class="btn btn-success" ng-click="deSelectAllLocs()">De-Select All</button>
+		<div style="float:right;">Selected {{selectedLocationCount}} of {{displayCopyLocItems.length}}</div>
+		</div>
+		<input type="text" class="form-control" id="filter" ng-model="copySearchText" style="width:50%; float:left; margin-top: 1%;"/>	
+		<button class="btn btn-info" ng-click="filterCopyLocs()">Filter</button>
+		<button class="btn btn-info" ng-click="clearCopyLocsFilter()">Clear Filter</button>
+			
+		<table class="table table-bordered  table-striped table-hover srTable">
+			<thead>
+				<th >Select</th>
+				<th >Location Name</th>
+				<th >Service Address</th>
+				<th >Primary TN</th>
+				<th >SWC CLLI code</th>
+				<th >Validation Status</td>
+			</thead>
+			<tbody>
+				<tr dir-paginate="lpaAng in displayCopyLocItems | itemsPerPage:4" class="angularLocationsTable">
+					<td >
+						<!--<input type="checkbox" id="{{lpaAng.Id}}" ng-click="setCurrentCopylocation(lpaAng);" ng-checked="lpaAng.Id == selectedlpa.Id" name="palChk" ng-disabled="isCapReadOnly"/> -->
+						<input type="checkbox" id="{{lpaAng.Id}}" ng-click="setCurrentCopylocation(lpaAng);" ng-checked="lpaAng.isSelected" name="palChk" ng-disabled="isCapReadOnly"/>
+					</td>
+					<td >{{lpaAng.Name}}</td>
+					<td >{{lpaAng.Service_Address_Line_1__c}}, {{lpaAng.City__c}}, {{lpaAng.State__c}}, {{lpaAng.Country__c}}, {{lpaAng.Zip__c}}</td>
+					<td >{{lpaAng.Primary_TN__c}}</td>
+					<td >{{lpaAng.SWC_CLLI_code__c}}</td>
+					<td >{{lpaAng.Status__c}}</td>
+				</tr>
+			</tbody>
+		</table>
+
+		<div class="text-center">
+			<dir-pagination-controls boundary-links="true" ></dir-pagination-controls>	
+		</div>
+	</div>
+	<div class="modal-footer">
+		<button type="button" class="btn btn-success" ng-click="closeCopyModal()">
+			Close
+		</button>
+		<button type="button" class="btn btn-success" ng-click="copySite(copyLocItems)">
+			Copy Site
+		</button>
+	</div>
+</div>

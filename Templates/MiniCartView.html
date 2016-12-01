@@ -1,0 +1,44 @@
+<ul class="navbar-right nav-pills list-inline">
+    <li class="dropdown">
+        <a href="#" data-toggle="dropdown" class="dropdown-toggle">
+            <span class="glyphicon glyphicon-shopping-cart"></span>&nbsp;Cart ({{lineCount}})<b class="caret"></b>
+        </a>
+        <div class="dropdown-menu dropdown-menu-minicart">
+            <div>
+                <h3><span class="glyphicon glyphicon-shopping-cart"></span>Selected Products</h3>
+                
+                <!-- Mini Cart Pagination Start -->
+                <ng-include src="constants.baseUrl+'/Templates/PaginationLinksView.html'"></ng-include>
+                <!-- Mini Cart Pagination End -->
+                    
+                <!-- Mini Cart Products Table Start -->
+                <table class="table table-bordered  table-striped table-hover">
+                    <thead>
+                        <th>Product</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </thead>                        
+                    <tbody>
+                        <tr ng-repeat="item in pagedItems[currentPage]">
+                            <td>
+                                <a target="_blank" href="/{{item.Apttus_Config2__ProductId__c}}">
+                                    {{item.Apttus_Config2__ProductId__r.Name}}
+                                </a>
+                            </td>
+                            <td>{{item.Apttus_Config2__LineStatus__c}}</td>
+                            <td>
+                                <a href="#" ng-click="invokeDoConfigure(item.Id)">
+                                    <i class="glyphicon glyphicon-cog img-thumbnail" title="Configure {{item.Apttus_Config2__ProductId__r.Name}}"></i>
+                                </a>
+                                <a href="#" ng-click="launch('confirmRemoveLine', item.Apttus_Config2__ProductId__r.Name, item.Apttus_Config2__LineNumber__c, item.Apttus_Config2__ProductId__r.Id)">
+                                    <i class="glyphicon glyphicon-trash img-thumbnail" title="Delete {{item.Apttus_Config2__ProductId__r.Name}}"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Mini Cart Products Table End -->
+            </div>
+        </div>
+    </li>
+</ul>

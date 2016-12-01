@@ -1,0 +1,12 @@
+<div class="col-md-12 col-sm-md-lg-cap" >  
+    <div class="col-inner-cap ng-cloak">
+    	<h4>Recommendations</h4>
+        <ul class="list-inline">
+            <li class="text-center" ng-repeat="recProdWrap in recCtrl.getproductsWrapList()">
+                <div ng-bind-html="recProdWrap.productDO.Name | unsafe">
+                </div>
+                <button class="btn btn-primary btn-xs" ng-click="recCtrl.addSelectedProducts(recProdWrap)">{{recProdWrap.action}}</button>
+            </li>
+        </ul>
+    </div>
+</div>

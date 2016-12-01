@@ -1,0 +1,32 @@
+<div ng-show="ctrl.prompt()" class="modal-overlay"></div>
+<div ng-show="ctrl.visible" class="modal-dialog modal-dialog-constraint">
+	<div class="modal-header">
+		<h3>Constraint Rule Message</h3>
+	</div>
+	<div class="modal-content">
+		<div class="modal-content__notification"></div>
+		<div class="modal-content__description constraintHeadMessage">
+			<p>{{ctrl.promptMessage}}</p>
+		</div>
+		<div class="modal-content__modal-row-container">
+			<div ng-repeat="product in ctrl.promptItems" class="modal-row">
+				<div class="form-element-container">
+					<div class="checkbox-override">
+						<input type="checkbox" id="{{product.Id}}" ng-click="ctrl.selectProduct(product)"/>
+						<label for="{{product.Id}}"></label>
+					</div>
+					<label for="{{product.Id}}" class="constratintInclussion">{{product.Name}}</label>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<div class="button-row">
+			<button ng-click="ctrl.performRuleAction()" 
+							class="primary">
+							<span>{{ctrl.ruleActionLabel}}</span>
+			</button>
+			<button ng-click="ctrl.ignoreRuleAction()" class="cancel"><span>Cancel</span></button>
+		</div>
+	</div>
+</div>

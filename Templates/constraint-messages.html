@@ -1,0 +1,43 @@
+<!--<div class="row row-cap pgMessages">-->
+    <div class="col-md-12 col-sm-md-lg-cap">
+		<div ng-show="messageCtrl.hasMessages()">
+			<div ng-show="messageCtrl.hasError()" class="error error--critical">
+				<div class="text-right">
+					<button type="button" class="btn btn-default btn-sm error--critical-collapse-btn" ng-click="messageCtrl.isErrorCollapsed = !messageCtrl.isErrorCollapsed">
+				      	<span class="glyphicon glyphicon-collapse-down error--critical-collapse-glyph" ng-show="messageCtrl.isErrorCollapsed"></span>
+				    	<span class="glyphicon glyphicon-collapse-up error--critical-collapse-glyph" ng-show="!messageCtrl.isErrorCollapsed"></span> Collapse
+				    </button>
+				</div>
+				<ul uib-collapse="messageCtrl.isErrorCollapsed" class="error__error-list">
+					<li ng-repeat="error in messageCtrl.pageErrors()">
+						<p>{{error[messageCtrl.messageField]}}</p>
+					</li>
+				</ul>
+			</div>
+
+			<div ng-show="messageCtrl.hasWarning()" class="error error--warning">
+				<ul class="error__warning-list">
+					<li ng-repeat="warning in messageCtrl.pageWarnings()">
+						<p>{{warning[messageCtrl.messageField]}}</p>
+					</li>
+				</ul>
+			</div>
+
+			<div ng-show="messageCtrl.hasInfo()" class="error error--info">
+				<ul class="error__info-list">
+					<li ng-repeat="info in messageCtrl.pageInfos()">
+						<p>{{info[messageCtrl.messageField]}}</p>
+					</li>
+				</ul>
+			</div>
+
+			<!--<div ng-show="messageCtrl.hasCommonErrors()" class="error error--critical">
+				<ul class="error__critical-list">
+					<li ng-repeat="commonError in messageCtrl.errorMessages">
+						<p>{{commonError.message}}</p>
+					</li>
+				</ul>
+			</div>-->
+		</div>
+	</div>
+<!--</div>-->

@@ -1,0 +1,133 @@
+<div class="modal-content" style="border-radius: initial;border: 3px solid green;">
+	<div class="modal-header model-header-custom customUniModalHeader"> 
+		
+		<div style="text-align:center">				
+			<p style="margin-bottom:-1em;color:#7ABC32">{{showSelectedUNILoc.Name}}</p>
+		</div>
+		<hr>
+		<div style="text-align:center">				
+			<p style="margin-top:-1em;color:#7F7F93">Please select which UNI you would like to Reuse</p>
+		</div>
+		<div style="margin-left: 20px;">Selected Ericson ID: {{showSelectedReusableUni()}}</div>
+	</div>
+	<div class="modal-body customUniModalHeader">			
+		<div class="help-block marginLeftRight">
+		
+			<table id="reuseUniTab" style="border-width:1px; border-style:outset;border-color:white">
+				<tr>
+				<td>
+					</td>
+					<td class="reusableUNISelectHelpLabel">
+					 	<a ng-click="sort('Index')" href="#" class="control-uni-label floatCenterDiv">
+                      		<span ng-class="Header['Index']" ng-class="{reverse: reverse}">Index</span>
+                      	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel" style="padding:0 9px">
+						<a ng-click="sort('UNIID')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['UNIID']" ng-class="{reverse: reverse}" ng-class="{reverse: reverse}">ECCKT ID</span>
+                    	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel">
+						<a ng-click="sort('UNIState')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['UNIState']" ng-class="{reverse: reverse}" ng-class="{reverse: reverse}">Service State</span>
+                    	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel">
+						<a ng-click="sort('AvailVC')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['AvailVC']" ng-class="{reverse: reverse}">Avail VC</span>
+                    	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel">
+						<a ng-click="sort('BWUtilized')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['BWUtilized']" ng-class="{reverse: reverse}">Used BW</span>
+                    	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel">
+						<a ng-click="sort('BWAvailable')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['BWAvailable']" ng-class="{reverse: reverse}">Avail BW</span>
+                    	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel">
+						<a ng-click="sort('PhysicalPortType')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['PhysicalPortType']" ng-class="{reverse: reverse}">Physical Port</span>
+                    	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel">
+						<a ng-click="sort('ServiceType')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['ServiceType']" ng-class="{reverse: reverse}">Service Type</span>
+                    	</a>
+					</td>
+					<td class="reusableUNISelectHelpLabel" style="padding:0 7px 7px">
+						<a ng-click="sort('Source')" href="#" class="control-uni-label floatCenterDiv">
+                       		<span ng-class="Header['Source']" ng-class="{reverse: reverse}">Source</span>
+                    	</a>
+					</td>
+					
+				</tr>
+				<!--<form>-->
+				<tr dir-paginate="UNI in filteredList | itemsPerPage: 5">
+					<td style="padding:0 7px 7px">
+						<input type= "radio" name="UNIRadio" id="UNIRadio" ng-checked="UNI.checked" ng-model="selectedUni.UNI" ng-value="UNI" ng-disabled="UNI.isDisabled"/>
+						<!--<button ng-click="selectReusableUNI(selectedUniIndex)">Submit</button>-->
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginUNILeftDiv">
+							{{UNI.Index}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.UNIID}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.UNIState}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.AvailVC}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.BWUtilized}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.BWAvailable}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.PhysicalPortType}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.ServiceType}}
+						</span>
+					</td>
+					<td>
+						<span ng-class="{disableTableRow: UNI.isDisabled}" class="help-block marginLeftDiv">
+							{{UNI.Source}}
+						</span>
+					</td>
+				</tr>
+				<!--</form>-->
+			</table>
+			<dir-pagination-controls></dir-pagination-controls>
+		</div>			
+	</div>		
+	<div class="centerButton customUniModalHeader">
+	<button type="button" class="btn btn-success" style="align:center" ng-click="selectReusableUNI()">
+			Select
+		</button>
+		<button type="button" class="btn btn-success" style="align:center" ng-click="dismissReusableUNI()">
+			Cancel
+		</button>
+   </div>
+   
+</div>

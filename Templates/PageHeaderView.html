@@ -1,0 +1,27 @@
+<nav class="navbar navbar-fixed-top navbar-inverse navbar-cap" role="navigation">
+    <div class="container-fluid">
+        <div class="navbar-form">
+            <ul class="nav navbar-nav">
+                <li>
+                    <strong>Proposal:</strong>
+                    <span>
+                        <a href="/{{PageHeader.QuoteId}}" target="_blank">{{PageHeader.QuoteNumber}}</a>&nbsp;
+                        <span>{{PageHeader.QuoteName}}</span>
+                    </span>        
+                </li>
+                <li>
+                    <strong>
+                        Approval Status:
+                    </strong>
+                    <span>{{PageHeader.ApprovalStatus}}</span>
+                </li>
+            </ul>
+
+            <ul class="navbar-right nav-pills list-inline" ng-controller="MiniCartController">
+                <li class="dropdown">
+					<ng-include src="constants.baseUrl+'/Templates/MiniCartView.html'"></ng-include>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>

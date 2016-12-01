@@ -1,0 +1,13 @@
+<table>
+	<tr ng-repeat="alert in messages">
+		<td ng-if="alert.type == 'danger'">Validation Message:</td>
+		<td ng-if="alert.type == 'angularerror'">Angular Exception:</td>
+		<td ng-if="alert.type == 'constrainterror'">Constraint Rule:</td>
+		<td ng-if="alert.type == 'webserviceserror'">WebService Message:</td>
+		
+		<td ng-if="alert.type == 'Error'">Error Message:</td>
+		<td ng-if="alert.type == 'Warning'">Warning Message:</td>
+		<td ng-if="alert.type == 'Info'">Info Message:</td>
+		<td class="validationMsg">{{alert.text}}</td>
+	</tr>
+</table>

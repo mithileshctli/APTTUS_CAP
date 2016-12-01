@@ -1,0 +1,33 @@
+<table class="table table-bordered  table-striped table-hover srTable">
+	<thead>
+		<th >Select</th>
+		<th >Loc Name</th>
+		<th >Service Address</th>
+		<th >Primary TN</th>
+		<th>Location Type</th>
+		<th >SWC CLLI code</th>
+		<th >Validation Status</td>
+	</thead>
+	<tbody>
+		<tr dir-paginate="lpaAng in locItems | itemsPerPage:4" class="angularLocationsTable">
+			<td >
+				<input type="radio" id="{{lpaAng.Id}}" ng-click="setSelectedlocation(lpaAng);" ng-checked="lpaAng.Id == selectedlpa.Id" name="palChk" ng-disabled="isCapReadOnly"/>
+			</td>
+			<td >{{lpaAng.Name}}</td>
+			<td >{{lpaAng.Service_Address_Line_1__c || lpaAng.Address__c}}, {{lpaAng.City__c}}, {{lpaAng.State__c}}, {{lpaAng.Country__c}}, {{lpaAng.Zip__c}}</td>
+			<td >{{lpaAng.Primary_TN__c}}</td>
+			<!--
+			<td> 
+				<input type="checkbox" id="{{lpaAng.Id}}"  ng-checked="{{lpaAng.isCQL}}" name="isCql" disabled />
+			</td>
+			-->
+			<td>{{lpaAng.locationType}}</td>
+			<td >{{lpaAng.SWC_CLLI_code__c}}</td>
+			<td >{{lpaAng.Status__c || lpaAng.Validation_Status__c}}</td>
+		</tr>
+	</tbody>
+</table>
+
+<div class="text-center">
+	<dir-pagination-controls boundary-links="true" ></dir-pagination-controls>	
+</div>
