@@ -349,17 +349,29 @@
             });
         }
 
-        $scope.removeBundle = function(lineItem, freezePage){
+        $scope.removeBundle = function(lineItem, freezePage, isEvc){
             var cartId = BaseConfigService.cartId;
             BaseService.startprogress(freezePage);// start progress bar.
-            var requestPromise = RemoteService.removeBundle(cartId, [lineItem.primaryLineNumber]);
-            return requestPromise.then(function(response){
-                LineItemService.getLineItems().then(function(response){
-                    LineItemService.setReRenderLineItems(true);
-                    LineItemService.getReRenderLineItems();
-                    BaseService.completeprogress();
-                });
-            });
+			if(isEvc){
+				var requestPromise = RemoteService.removeOptionCustom(cartId, lineItem.primaryLineNumber);
+				return requestPromise.then(function(response){
+					LineItemService.getLineItems().then(function(response){
+						LineItemService.setReRenderLineItems(true);
+						LineItemService.getReRenderLineItems();
+						BaseService.completeprogress();
+					});
+				});
+			}else{
+				var requestPromise = RemoteService.removeBundle(cartId, [lineItem.primaryLineNumber]);
+				return requestPromise.then(function(response){
+					LineItemService.getLineItems().then(function(response){
+						LineItemService.setReRenderLineItems(true);
+						LineItemService.getReRenderLineItems();
+						BaseService.completeprogress();
+					});
+				});
+			}
+			
         }
 
         $scope.getLineItems = function(optionGroup){

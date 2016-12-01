@@ -142,6 +142,7 @@
                     $scope.currentSelectedLineItemBandle = LineItemService.getCurrentSelectedLineItemBundle();
                     $scope.configureOptionLines();
 					
+					
 					if(BaseConfigService.proposal.isLargeQuote){
 						_.each($scope.currentSelectedLineItemBandle, function(item){
 							if(_.has(item, 'errorMessage') && !_.has(item, 'errorMessageType')){
@@ -313,6 +314,7 @@
         */
         $scope.renderAttrNrunExpre = function(pcComponent, index, renderAttr, qtyChange, optionGroup, renderCloned){
 			$scope.optionGroupService.setHideClonedOptionAttributes(true);
+			ProductAttributeConfigDataService.recalculateL3PPCosBandwidth(pcComponent, BaseConfigService.lineItem.bundleProdName);
 			$scope.renderClonedGRP = renderCloned;
 			var optionGrpName = optionGroup.groupName;
 			$scope.currentproductoptiongroups = $scope.optionGroupService.quantityValidationFromOptionLine($scope.currentproductoptiongroups);
@@ -320,8 +322,12 @@
 			$scope.optionGroupService.currentOptionGroupName = optionGrpName;
             LineItemService.currentOption = pcComponent;
 			var freezePage = false;
-            if(renderAttr && !qtyChange){
-                if(pcComponent.lineItemsCount > 1){
+            if(renderAttr && !qtyChange){				
+				//Added by David (Dato) Tsamalashvili for L3PP EVC Validation - DE11712 - 11/22/2016
+				var allLineItemsToValid = LineItemService.getAllLineItems();
+				pcComponent = OptionGroupDataService.L3PPevcValidation(pcComponent, allLineItemsToValid,optionGrpName,BaseConfigService.lineItem.bundleProdName);
+				
+                if(pcComponent.lineItemsCount > 1 || $scope.isL3PPEVC(optionGrpName)){
 					if($scope.isCGELineService())
 						freezePage = true;
 					
@@ -331,15 +337,17 @@
 						$scope.currentComponentGrpname = optionGrpName;
 						OptionGroupDataService.setReRenderClonedGroups(false);
 					}
-					
-                    $scope.removeBundle(pcComponent.lineItem, freezePage);										
-                    return;
+					var isEvc = $scope.isL3PPEVC(optionGrpName);
+					if(!_.isUndefined(pcComponent.lineItem) && !_.isNull(pcComponent.lineItem)){
+						$scope.removeBundle(pcComponent.lineItem, freezePage, isEvc);
+						return;
+					}
                 }
                 // In case when we have more than one lineItem for option
                 if(pcComponent.originalPComponent)
                     pcComponent.originalPComponent.isselected = pcComponent.isselected;
 
-				$scope.checkSelected(optionGroup, pcComponent);		
+				$scope.checkSelected(optionGroup, pcComponent);
                 $scope.renderoptionproductattributes(pcComponent, index, optionGrpName);
             }
             if(!renderAttr && !qtyChange){
@@ -363,7 +371,7 @@
             if($scope.cascadeQty){
                 $scope.cascadeExpressionQty(null, pcComponent)
             }
-			$scope.checkSelectedCoSOptions(optionGroup, pcComponent);			
+			$scope.checkSelectedCoSOptions(optionGroup, pcComponent);
 			//Commented by David (Dato) Tsamalashvili - March 18 2016, DE4908
 			//$scope.totalSeatsValidation();
 			$scope.portOptionsValidation();	
@@ -447,7 +455,7 @@
 				$scope.optionGroupService.showCoSSelectionError = false;
 				$scope.optionGroupService.setInvalidAccessEVCFlag(false, pcComponent);
 			}
-        }		
+        }
 
 		//added by David (Dato) Tsamalashvili - 06/10/2016 - for grouping attributes for cloned options
 		$scope.renderClonedGroup = function(pcComponent, index, renderAttr, qtyChange, optionGrpName){
@@ -671,10 +679,26 @@
 							items.push(pcomponent);
 						} else{
 							_.each(pcomponentLineItems, function(pcomponentLine){
-								var newPComponent = angular.copy(pcomponent);
-								//newPComponent.quantity = pcomponentLine.quantity;
-								newPComponent.lineItem = pcomponentLine;
-								newPComponent.originalPComponent = pcomponent;
+                                var newPComponent;
+                                var optionComponent;
+                                var cloneQuantity;
+                                   _.each(optiongroup.optionLines, function(optionLineClone){
+                                        if(!optionComponent && optionLineClone.lineItem && !cloneQuantity && optionLineClone.lineItem.lineItemId == pcomponentLine.lineItemId){
+                                            optionComponent = optionLineClone.lineItem;
+                                            cloneQuantity = optionLineClone.quantity;
+                                        }
+                                    });
+                                if(pcomponent.allowCloning == true && optionComponent && cloneQuantity){ 
+                                    newPComponent = angular.copy(pcomponent);
+                                    newPComponent.quantity = cloneQuantity;
+                                    newPComponent.lineItem = pcomponentLine;
+                                    newPComponent.originalPComponent = pcomponent;
+                                }else{
+                                    newPComponent = angular.copy(pcomponent);
+                                    //newPComponent.quantity = pcomponentLine.quantity;
+                                    newPComponent.lineItem = pcomponentLine;
+                                    newPComponent.originalPComponent = pcomponent;
+                                }
 								var lineItemsToOptionPAVMap = LineItemAttributeValueDataService.getlineItemIdToAttributesValues();
 								if(_.has(lineItemsToOptionPAVMap[pcomponentLine.lineItemId],'UNI_ERROR_INDICATOR__c') && $scope.checkUNIErrors(lineItemsToOptionPAVMap[pcomponentLine.lineItemId]['UNI_ERROR_INDICATOR__c']).length > 0 && pcomponentLine.optionName == 'UNI'){
 									newPComponent.showErrorOnUni = true;
@@ -760,6 +784,22 @@
 				return true;
 			return false;
 		};
+		
+		$scope.isL3PPEVC = function(optionGrpName){
+			var bundleProd = BaseConfigService.lineItem.bundleProdName;
+			var L3EVCOptionGroupsToCount = [];
+			L3EVCOptionGroupsToCount['EVC CoS Options'] = 'EVC CoS Options';
+			L3EVCOptionGroupsToCount['EVC Add Ons'] = 'EVC Add Ons';
+			if(!_.isUndefined(optionGrpName) && !_.isUndefined(bundleProd)){
+				if(bundleProd.toLowerCase() == 'L3 IQ Networking Private Port'.toLowerCase() && _.has(L3EVCOptionGroupsToCount, optionGrpName)){
+					return true;
+				}else{
+					return false;
+				}
+			}else{
+				return false;
+			}
+		}
 		
 		$scope.checkElineUniCount = function(){
 			var totalUniCount = 0;
